@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"/>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-1">
+        <createTable tableName="app">
+            <column name="id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="NULL" name="url" type="VARCHAR(50)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-2">
+        <createTable tableName="role">
+            <column name="id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="app_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="NULL" name="role_name" type="VARCHAR(20)"/>
+            <column defaultValue="NULL" name="description" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-3">
+        <createTable tableName="role_table">
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-4">
+        <createTable tableName="session">
+            <column name="id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="NULL" name="jwt" type="TEXT"/>
+            <column defaultValueComputed="current_timestamp()" name="create_time" type="TIMESTAMP(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-5">
+        <createTable tableName="user">
+            <column name="id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="NULL" name="login" type="VARCHAR(20)"/>
+            <column defaultValue="NULL" name="password" type="VARCHAR(25)"/>
+            <column defaultValue="NULL" name="info" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-6">
+        <addPrimaryKey columnNames="id" tableName="app"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-7">
+        <addPrimaryKey columnNames="id" tableName="role"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-8">
+        <addPrimaryKey columnNames="user_id, role_id" tableName="role_table"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-9">
+        <addPrimaryKey columnNames="id" tableName="session"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-10">
+        <addPrimaryKey columnNames="id" tableName="user"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-11">
+        <createIndex indexName="app_id" tableName="role">
+            <column name="app_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-12">
+        <createIndex indexName="role_id" tableName="role_table">
+            <column name="role_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-13">
+        <createIndex indexName="user_id" tableName="session">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-14">
+        <addForeignKeyConstraint baseColumnNames="app_id" baseTableName="role" constraintName="role_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="app"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-15">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="role_table" constraintName="role_table_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-16">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_table" constraintName="role_table_ibfk_2" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="role"/>
+    </changeSet>
+    <changeSet author="tiger8bit (generated)" id="1574540210023-17">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+</databaseChangeLog>

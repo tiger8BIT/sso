@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"/>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
     <changeSet author="tiger8bit (generated)" id="1574540210023-1">
         <createTable tableName="app">
             <column name="id" type="INT">
@@ -85,15 +87,15 @@
         </createIndex>
     </changeSet>
     <changeSet author="tiger8bit (generated)" id="1574540210023-14">
-        <addForeignKeyConstraint baseColumnNames="app_id" baseTableName="role" constraintName="role_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="app"/>
+        <addForeignKeyConstraint baseColumnNames="app_id" baseTableName="role" constraintName="role_ibfk_1" deferrable="true" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="app"/>
     </changeSet>
     <changeSet author="tiger8bit (generated)" id="1574540210023-15">
-        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="role_table" constraintName="role_table_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="role_table" constraintName="role_table_ibfk_1" deferrable="true" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
     <changeSet author="tiger8bit (generated)" id="1574540210023-16">
-        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_table" constraintName="role_table_ibfk_2" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="role"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_table" constraintName="role_table_ibfk_2" deferrable="true" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="role"/>
     </changeSet>
     <changeSet author="tiger8bit (generated)" id="1574540210023-17">
-        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" deferrable="true" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" deferrable="true" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
 </databaseChangeLog>

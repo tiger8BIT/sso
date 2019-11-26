@@ -11,6 +11,7 @@
     <properties>
         <spring.version>5.1.5.RELEASE</spring.version>
         <spring-data.version>Lovelace-SR5</spring-data.version>
+        <spring.profiles.active>local,no-liquibase</spring.profiles.active>
     </properties>
 
     <dependencyManagement>
@@ -58,12 +59,12 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>3.4.1</version>
+            <version>3.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-maven-plugin</artifactId>
-            <version>3.4.1</version>
+            <version>3.8.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>

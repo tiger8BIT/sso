@@ -1,6 +1,6 @@
 package artezio.vkolodynsky.config;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -27,72 +27,14 @@ import org.springframework.core.env.Environment;
 
 import java.util.Properties;
 
-@ComponentScan(basePackages = {"artezio.vkolodynsky.controller", "artezio.vkolodynsky.service"})
+@ComponentScan("artezio.vkolodynsky.controller")
 @Configuration
 @EnableWebMvc
-@EnableJpaRepositories("artezio.vkolodynsky.repository")
-@EnableSpringDataWebSupport
-@PropertySource({ "classpath:application.properties" })
 public class WebConfig {
-    @Autowired
-    private Environment env;
     @Autowired
     ApplicationContext applicationContext;
 
-    public WebConfig() {
-        super();
-    }
-
-    // beans
-
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        final LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
-        entityManagerFactory.setDataSource(dataSource());
-        entityManagerFactory.setPackagesToScan("artezio.vkolodynsky.model");
-
-        final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        entityManagerFactory.setJpaVendorAdapter(vendorAdapter);
-        entityManagerFactory.setJpaProperties(additionalProperties());
-
-        return entityManagerFactory;
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
-        dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
-        dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
-
-        return dataSource;
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager(final EntityManagerFactory emf) {
-        final JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf);
-        return transactionManager;
-    }
-
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-        return new PersistenceExceptionTranslationPostProcessor();
-    }
-
-    final Properties additionalProperties() {
-        final Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
-        hibernateProperties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
-        hibernateProperties.setProperty("hibernate.cache.use_second_level_cache", "false");
-
-
-        return hibernateProperties;
-    }
-
     //thymeleaf view configurations
-
     @Bean
     public SpringTemplateEngine templateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();

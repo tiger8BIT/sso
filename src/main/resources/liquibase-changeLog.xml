@@ -8,7 +8,8 @@
     <column name="id" type="INT">
         <constraints nullable="false"/>
     </column>
-    <column defaultValue="NULL" name="url" type="VARCHAR(50)"/>
+    <column defaultValue="NULL" name="url" type="VARCHAR(255)"/>
+    <column defaultValue="NULL" name="name" type="VARCHAR(50)"/>
 </createTable>
 </changeSet>
 <changeSet author="tiger8bit (generated)" id="1574540210023-2">

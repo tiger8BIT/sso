@@ -19,10 +19,10 @@ public class LiquibaseConfig {
     @Bean
     public DataSource liquibaseDataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
-        dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
-        dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
+        dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("ljdbc.driverClassName")));
+        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("ljdbc.url")));
+        dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("ljdbc.user")));
+        dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("ljdbc.pass")));
         return dataSource;
     }
     @Bean

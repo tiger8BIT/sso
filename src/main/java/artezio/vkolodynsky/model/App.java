@@ -22,7 +22,7 @@ public class App implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
-
+	private String name;
 	private String url;
 
 	//bi-directional many-to-one association to Role

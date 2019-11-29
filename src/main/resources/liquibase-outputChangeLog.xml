@@ -98,4 +98,5 @@
     <changeSet author="tiger8bit (generated)" id="1574540210023-17">
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" deferrable="true" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
     </changeSet>
+
 </databaseChangeLog>

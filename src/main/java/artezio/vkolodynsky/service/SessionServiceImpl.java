@@ -22,12 +22,12 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public void deleteByID(long id) {
+    public void deleteByID(int id) {
         repository.deleteById(id);
     }
 
     @Override
-    public Session findByID(long id) {
+    public Session findByID(int id) {
         return repository.findById(id).get();
     }
 }

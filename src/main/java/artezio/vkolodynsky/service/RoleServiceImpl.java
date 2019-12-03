@@ -1,5 +1,7 @@
 package artezio.vkolodynsky.service;
+import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.Role;
+import artezio.vkolodynsky.model.User;
 import artezio.vkolodynsky.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,22 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteByID(long id) {
+    public void deleteByID(int id) {
         repository.deleteById(id);
     }
 
     @Override
-    public Role findByID(long id) {
+    public Role findByID(int id) {
         return repository.findById(id).get();
+    }
+
+    @Override
+    public List<Role> findByApp(App app) {
+        return repository.findByApp(app);
+    }
+
+    @Override
+    public List<Role> findByUserAndApp(User user, App app) {
+        return repository.findByUsersAndApp(List.of(user), app);
     }
 }

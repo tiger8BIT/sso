@@ -5,6 +5,8 @@ import java.util.List;
 public interface AppService {
     List<App> findAll();
     App save(App value);
-    void deleteByID(long id);
-    App findByID(long id);
+    void deleteByID(int id);
+    App findByID(int id);
+    App getAppByUrl(String url);
+    App getAppByName(String name);
 }

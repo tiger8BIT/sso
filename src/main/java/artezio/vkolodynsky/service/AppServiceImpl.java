@@ -22,12 +22,22 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public void deleteByID(long id) {
+    public void deleteByID(int id) {
         repository.deleteById(id);
     }
 
     @Override
-    public App findByID(long id) {
+    public App findByID(int id) {
         return repository.findById(id).get();
+    }
+
+    @Override
+    public App getAppByUrl(String url) {
+        return repository.getAppByUrl(url);
+    }
+
+    @Override
+    public App getAppByName(String name) {
+        return repository.getAppByName(name);
     }
 }

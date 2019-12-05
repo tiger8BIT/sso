@@ -1,5 +1,6 @@
 package artezio.vkolodynsky.model;
 
+import artezio.vkolodynsky.model.data.AppData;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,9 @@ public class App implements Serializable {
 	//bi-directional many-to-one association to Role
 	@OneToMany(mappedBy="app")
 	private List<Role> roles;
+
+	public App(AppData app){
+	    name = app.getName();
+	    url = app.getUrl();
+    }
 }

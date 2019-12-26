@@ -24,14 +24,27 @@ public class RestTestController {
     public @ResponseBody
     ResponseEntity getAppsList() {
         List<AppData>  apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
-        log.info("Response: {}", apps);
         return ResponseEntity.status(HttpStatus.OK).body(apps);
+    }
+    @GetMapping("/update/app")
+    public @ResponseBody
+    ResponseEntity getApp(@RequestParam Integer id) {
+        AppData app = new AppData(appService.findByID(id));
+        return ResponseEntity.status(HttpStatus.OK).body(app);
+    }
+    @PostMapping("update/app")
+    public @ResponseBody
+    ResponseEntity updateApp(@RequestBody AppData appData) {
+        App app = appService.findByID(appData.getId());
+        app.setUrl(appData.getUrl());
+        app.setName(appData.getName());
+        appService.save(app);
+        return ResponseEntity.status(HttpStatus.OK).body(app.getId());
     }
     @PostMapping("add/app")
     public @ResponseBody
     ResponseEntity putApp(@RequestBody AppData appData) {
         App app = new App(appData);
-        log.info("--------------------------- {}", app);
         appService.save(app);
         return ResponseEntity.status(HttpStatus.OK).body(app.getId());
     }

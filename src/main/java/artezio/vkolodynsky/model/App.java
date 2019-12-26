@@ -26,11 +26,10 @@ public class App implements Serializable {
 	private String name;
 	private String url;
 
-	//bi-directional many-to-one association to Role
 	@OneToMany(mappedBy="app")
 	private List<Role> roles;
 
-	public App(AppData app){
+	public App(AppData app) {
 	    name = app.getName();
 	    url = app.getUrl();
     }

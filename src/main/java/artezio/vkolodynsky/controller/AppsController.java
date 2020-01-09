@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 @RestController
 @Slf4j
-public class RestTestController {
+public class AppsController {
     @Autowired
     private AppService appService;
     @GetMapping("/apps")
@@ -26,11 +26,11 @@ public class RestTestController {
         List<AppData>  apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(apps);
     }
-    @GetMapping("/update/app")
+    @PostMapping("delete/app")
     public @ResponseBody
-    ResponseEntity getApp(@RequestParam Integer id) {
-        AppData app = new AppData(appService.findByID(id));
-        return ResponseEntity.status(HttpStatus.OK).body(app);
+    ResponseEntity deleteApp(@RequestBody Integer id) {
+        appService.deleteByID(id);
+        return ResponseEntity.status(HttpStatus.OK).body(id);
     }
     @PostMapping("update/app")
     public @ResponseBody

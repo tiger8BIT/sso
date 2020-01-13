@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 @RestController
 @Slf4j
+@CrossOrigin(origins = {"http://localhost:3000"})
 public class AppsController {
     @Autowired
     private AppService appService;

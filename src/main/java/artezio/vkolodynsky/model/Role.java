@@ -38,13 +38,11 @@ public class Role implements Serializable {
 	private List<User> users;
 
 	public Role (RoleData roleData, App app) {
-		id = roleData.getId();
 		description = roleData.getDescription();
 		roleName = roleData.getRoleName();
 		this.app = app;
 	}
 	public void setData (RoleData roleData, App app) {
-		id = roleData.getId();
 		description = roleData.getDescription();
 		roleName = roleData.getRoleName();
 		this.app = app;

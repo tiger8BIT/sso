@@ -1,4 +1,4 @@
-package artezio.vkolodynsky.controller;
+package artezio.vkolodynsky.controller.administration;
 
 import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.User;
@@ -15,26 +15,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000"})
+@RestController
+@RequestMapping("administration/users")
 public class UsersController {
     @Autowired
     private UserService userService;
-    @GetMapping("/users")
+    @GetMapping
     public @ResponseBody
     ResponseEntity getUserssList() {
         List<UserData> apps = userService.findAll().stream().map(UserData::new).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(apps);
     }
 
-    @PostMapping("delete/user")
+    @PostMapping("delete")
     public @ResponseBody
     ResponseEntity deleteUser(@RequestBody Integer id) {
         userService.deleteByID(id);
         return ResponseEntity.status(HttpStatus.OK).body(id);
     }
-    @PostMapping("update/user")
+    @PostMapping("update")
     public @ResponseBody
     ResponseEntity updateUser(@RequestBody UserData userData) {
         User user = userService.findByID(userData.getId());
@@ -42,7 +42,7 @@ public class UsersController {
         userService.save(user);
         return ResponseEntity.status(HttpStatus.OK).body(user.getId());
     }
-    @PostMapping("add/user")
+    @PostMapping("add")
     public @ResponseBody
     ResponseEntity putApp(@RequestBody UserData userData) {
         User user = new User(userData);

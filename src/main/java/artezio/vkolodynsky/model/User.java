@@ -46,11 +46,15 @@ public class User implements Serializable {
 	public User(UserData userData) {
 		info = userData.getInfo();
 		login = userData.getLogin();
-		password = Objects.requireNonNull(userData.getPassword());
+		if(userData.getPassword() != null) {
+			password = userData.getPassword();
+		}
 	}
 	public void setData(UserData userData) {
 		info = userData.getInfo();
 		login = userData.getLogin();
-		password = Objects.requireNonNull(userData.getPassword());
+		if(userData.getPassword() != null) {
+			password = userData.getPassword();
+		}
 	}
 }

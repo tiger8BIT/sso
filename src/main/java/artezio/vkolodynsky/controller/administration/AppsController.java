@@ -1,4 +1,4 @@
-package artezio.vkolodynsky.controller;
+package artezio.vkolodynsky.controller.administration;
 
 import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.data.AppData;
@@ -7,33 +7,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@RestController
+
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000"})
+@RestController
+@RequestMapping("administration/apps")
 public class AppsController {
     @Autowired
     private AppService appService;
-    @GetMapping("/apps")
+    @GetMapping
     public @ResponseBody
     ResponseEntity getAppsList() {
         List<AppData>  apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(apps);
     }
-    @PostMapping("delete/app")
+    @PostMapping("delete")
     public @ResponseBody
     ResponseEntity deleteApp(@RequestBody Integer id) {
         appService.deleteByID(id);
         return ResponseEntity.status(HttpStatus.OK).body(id);
     }
-    @PostMapping("update/app")
+    @PostMapping("update")
     public @ResponseBody
     ResponseEntity updateApp(@RequestBody AppData appData) {
         App app = appService.findByID(appData.getId());
@@ -42,7 +39,7 @@ public class AppsController {
         appService.save(app);
         return ResponseEntity.status(HttpStatus.OK).body(app.getId());
     }
-    @PostMapping("add/app")
+    @PostMapping("add")
     public @ResponseBody
     ResponseEntity putApp(@RequestBody AppData appData) {
         App app = new App(appData);

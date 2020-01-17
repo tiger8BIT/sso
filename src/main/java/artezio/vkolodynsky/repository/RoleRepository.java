@@ -11,4 +11,5 @@ import java.util.List;
 public interface RoleRepository extends CrudRepository<Role, Integer> {
     List<Role> findByApp(App app);
     List<Role> findByUsersAndApp(List<User> users, App app);
+    List<Role> findByUsers(List<User> users);
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -29,8 +30,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role findByID(int id) {
-        return repository.findById(id).get();
+    public Optional<Role> findByID(int id) {
+        return repository.findById(id);
     }
 
     @Override
@@ -41,5 +42,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> findByUserAndApp(User user, App app) {
         return repository.findByUsersAndApp(List.of(user), app);
+    }
+
+    @Override
+    public List<Role> findByUser(User user) {
+        return repository.findByUsers(List.of(user));
     }
 }

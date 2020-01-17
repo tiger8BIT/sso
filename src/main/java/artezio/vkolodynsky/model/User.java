@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,17 +32,15 @@ public class User implements Serializable {
 
 	private String password;
 
-	//bi-directional many-to-one association to Session
 	@OneToMany(mappedBy="user")
 	private List<Session> sessions;
 
-	//bi-directional many-to-one association to RoleTable
 	@ManyToMany
 	@JoinTable(
 			name = "role_table",
 			joinColumns = @JoinColumn(name = "user_id"),
 			inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private List<Role> userRoles;
+	private List<Role> userRoles = new ArrayList<>();
 
 	public User(UserData userData) {
 		info = userData.getInfo();

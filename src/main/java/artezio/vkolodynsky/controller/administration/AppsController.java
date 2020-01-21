@@ -2,6 +2,7 @@ package artezio.vkolodynsky.controller.administration;
 
 import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.data.AppData;
+import artezio.vkolodynsky.model.response.ServerResponse;
 import artezio.vkolodynsky.service.AppService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.PersistenceException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -17,35 +21,63 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("administration/apps")
 public class AppsController {
-    @AllArgsConstructor
-    class IdResponse {
-        public int id;
-    }
     @Autowired
     private AppService appService;
     @GetMapping
     public @ResponseBody
     ResponseEntity getAppsList() {
         List<AppData> apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(apps);
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(apps));
     }
-    @PostMapping("delete")
-    public void deleteApp(@RequestBody Integer id) {
-        appService.deleteByID(id);
-    }
-    @PostMapping("update")
+    @GetMapping("{id}")
     public @ResponseBody
-    ResponseEntity updateApp(@RequestBody AppData appData) {
-        App app = appService.findByID(appData.getId());
-        app.setUrl(appData.getUrl());
-        app.setName(appData.getName());
-        appService.save(app);
-        return ResponseEntity.status(HttpStatus.OK).body(app.getId());
+    ResponseEntity getApp(@PathVariable Integer id) {
+        Optional<App> app = appService.findByID(id);
+        if (app.isPresent()) {
+            AppData appData = new AppData(app.get());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(appData));
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + id));
     }
-    @PostMapping("add")
+    @DeleteMapping("{id}")
+    public @ResponseBody
+    ResponseEntity deleteApp(@PathVariable Integer id) {
+        try {
+            appService.deleteByID(id);
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
+    }
+    @PutMapping("{id}")
+    public @ResponseBody
+    ResponseEntity updateApp(@PathVariable Integer id, @RequestBody AppData appData) {
+        Optional<App> app = appService.findByID(id);
+        if (app.isPresent()) {
+            try {
+                app.get().setUrl(appData.getUrl());
+                app.get().setName(appData.getName());
+                App updatedApp = appService.save(app.get());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new AppData(updatedApp)));
+            } catch (PersistenceException e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            }
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + id));
+
+    }
+    @PostMapping
     public @ResponseBody
     ResponseEntity putApp(@RequestBody AppData appData) {
         App app = new App(appData);
-        return ResponseEntity.status(HttpStatus.OK).body(new AppData(appService.save(app)));
+        try {
+            App newApp = appService.save(app);
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new AppData(newApp)));
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
     }
 }

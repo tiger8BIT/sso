@@ -4,10 +4,12 @@ import artezio.vkolodynsky.model.User;
 import artezio.vkolodynsky.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,18 +57,54 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Optional<User> addRole(int userId, Role role) {
+    public User addRole(int userId, Role role) throws NonTransientDataAccessException {
         Optional<User> user = repository.findById(userId);
         if (user.isPresent()) {
-            if (user.get().getUserRoles() != null) {
-                user.get().getUserRoles().add(role);
+            List<Role> roles = user.get().getUserRoles();
+            if (roles != null) {
+                roles.add(role);
             } else {
                 user.get().setUserRoles(new ArrayList<>(List.of(role)));
             }
-            return Optional.of(repository.save(user.get()));
+            return repository.save(user.get());
         }
-        else {
-            return user;
-        }
+        else throw new NonTransientDataAccessException("User not found by id " + userId){};
     }
+    @Override
+    @Transactional
+    public User deleteRole(int userId, Role role) throws NonTransientDataAccessException, NullPointerException {
+        Optional<User> user = repository.findById(userId);
+        if (user.isPresent()) {
+            List<Role> roles = user.get().getUserRoles();
+            if (roles != null) {
+                if(roles.remove(role)) return repository.save(user.get());
+                else throw new NonTransientDataAccessException("User haven't role with id " + role.getId()){};
+            } else {
+                throw new NullPointerException("User roles is null");
+            }
+        }
+        else throw new NonTransientDataAccessException("User not found by id " + userId){};
+    }
+
+    @Override
+    public Boolean existsById(int id) {
+        return repository.existsById(id);
+    }
+
+    @Override
+    @Transactional
+    public Boolean containsRole(int userId, Role role) throws NonTransientDataAccessException, NullPointerException {
+        Optional<User> user = repository.findById(userId);
+        if (user.isPresent()) {
+            List<Role> roles = user.get().getUserRoles();
+            if (roles != null) {
+                return roles.contains(role);
+            } else {
+                throw new NullPointerException("User roles is null");
+            }
+        }
+        else throw new NonTransientDataAccessException("User not found by id " + userId){};
+    }
+
+
 }

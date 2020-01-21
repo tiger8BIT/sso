@@ -1,4 +1,4 @@
-package artezio.vkolodynsky.model.request_body;
+package artezio.vkolodynsky.model.request;
 
 public class UpdateAction {
     public Integer targetItemId;

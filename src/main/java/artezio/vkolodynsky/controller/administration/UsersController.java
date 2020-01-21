@@ -1,13 +1,11 @@
 package artezio.vkolodynsky.controller.administration;
 
-import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.Role;
 import artezio.vkolodynsky.model.User;
-import artezio.vkolodynsky.model.data.AppData;
 import artezio.vkolodynsky.model.data.RoleData;
 import artezio.vkolodynsky.model.data.UserData;
-import artezio.vkolodynsky.model.request_body.UpdateAction;
-import artezio.vkolodynsky.service.AppService;
+import artezio.vkolodynsky.model.request.UpdateAction;
+import artezio.vkolodynsky.model.response.ServerResponse;
 import artezio.vkolodynsky.service.RoleService;
 import artezio.vkolodynsky.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,50 +31,103 @@ public class UsersController {
     @GetMapping
     public @ResponseBody
     ResponseEntity getUsersList() {
-        List<UserData> roles = userService.findAll().stream().map(UserData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(roles);
+        List<UserData> users = userService.findAll().stream().map(UserData::new).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(users));
     }
-    @PostMapping("delete")
+    @GetMapping("{id}")
     public @ResponseBody
-    ResponseEntity deleteUser(@RequestBody Integer id) {
-        userService.deleteByID(id);
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+    ResponseEntity getUser(@PathVariable Integer id) {
+        Optional<User> user = userService.findByID(id);
+        if(user.isPresent()) {
+            UserData userData = new UserData(user.get());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(userData));
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + id));
     }
-    @PostMapping("update")
+    @DeleteMapping("{id}")
     public @ResponseBody
-    ResponseEntity updateUser(@RequestBody UserData userData) {
-        User user = userService.findByID(userData.getId()).get();
-        user.setData(userData);
-        userService.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body(user.getId());
+    ResponseEntity deleteUser(@PathVariable Integer id) {
+        try {
+            userService.deleteByID(id);
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
     }
-    @PostMapping("update/roles/add")
+    @PutMapping("{id}")
     public @ResponseBody
-    ResponseEntity updateUserRolesAdd(@RequestBody UpdateAction updateAction) {
-        Optional<User> user = userService.findByID(updateAction.targetItemId);
+    ResponseEntity updateUser(@PathVariable Integer id, @RequestBody UserData userData) {
+        Optional<User> user = userService.findByID(id);
+        if (user.isPresent()){
+            try {
+                user.get().setData(userData);
+                User updatedUser = userService.save(user.get());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+            } catch (PersistenceException e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            }
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + id));
+    }
+    @PostMapping
+    public @ResponseBody
+    ResponseEntity addUser(@RequestBody UserData userData) {
+        User user = new User(userData);
+        try {
+            User newUser = userService.save(user);
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(newUser)));
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
+    }
+    @GetMapping("{id}/roles")
+    public @ResponseBody
+    ResponseEntity getRolesOfUser(@PathVariable Integer id) {
+        Optional<User> user = userService.findByID(id);
         if (user.isPresent()) {
-            Optional<Role> role = roleService.findByID(updateAction.actionItemId);
-            if(role.isPresent()) {
-                userService.addRole(user.get().getId(), role.get());
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body("Role is added");
+            List<Role> roles = roleService.findByUser(user.get());
+            if (roles != null && !roles.isEmpty()) {
+                List<RoleData> rolesData = roles.stream().map(RoleData::new).collect(Collectors.toList());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(rolesData));
             }
             else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Server can't found role with id " + updateAction.actionItemId);
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(Collections.EMPTY_LIST));
             }
         }
         else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Server can't found user with id " + updateAction.targetItemId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServerResponse.error("User not found by id " + id));
         }
-
     }
-    @PostMapping("add")
+    @PostMapping("{userId}/roles/{roleId}")
     public @ResponseBody
-    ResponseEntity putApp(@RequestBody UserData userData) {
-        User user = new User(userData);
-        userService.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body(user.getId());
+    ResponseEntity userRolesAdd(@PathVariable Integer userId, @PathVariable Integer roleId) {
+        Optional<Role> role = roleService.findByID(roleId);
+        if (!userService.existsById(userId)) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + userId));
+        if (role.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + roleId));
+        try {
+            User updatedUser = userService.addRole(userId, role.get());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
+    }
+    @DeleteMapping("{userId}/roles/{roleId}")
+    public @ResponseBody
+    ResponseEntity userRolesDelete(@PathVariable Integer userId, @PathVariable Integer roleId) {
+        Optional<Role> role = roleService.findByID(roleId);
+        if (!userService.existsById(userId)) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + userId));
+        if (role.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + roleId));
+        if(!userService.containsRole(userId, role.get())) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User haven't role with id " + roleId));
+        try {
+            User updatedUser = userService.deleteRole(userId, role.get());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
     }
 }

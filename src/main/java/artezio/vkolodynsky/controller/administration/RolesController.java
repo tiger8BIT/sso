@@ -5,6 +5,7 @@ import artezio.vkolodynsky.model.Role;
 import artezio.vkolodynsky.model.User;
 import artezio.vkolodynsky.model.data.AppData;
 import artezio.vkolodynsky.model.data.RoleData;
+import artezio.vkolodynsky.model.response.ServerResponse;
 import artezio.vkolodynsky.service.AppService;
 import artezio.vkolodynsky.service.RoleService;
 import artezio.vkolodynsky.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,47 +34,63 @@ public class RolesController {
     @GetMapping
     public @ResponseBody
     ResponseEntity getAppsList() {
-        List<RoleData>  apps = roleService.findAll().stream().map(RoleData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(apps);
+        List<RoleData>  roles = roleService.findAll().stream().map(RoleData::new).collect(Collectors.toList());
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(roles));
     }
-    @PostMapping("delete")
+    @GetMapping("{id}")
     public @ResponseBody
-    ResponseEntity deleteApp(@RequestBody Integer id) {
-        roleService.deleteByID(id);
-        return ResponseEntity.status(HttpStatus.OK).body(id);
+    ResponseEntity getAppsList(@PathVariable Integer id) {
+        Optional<Role> role = roleService.findByID(id);
+        if (role.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(role.get())));
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + id));
     }
-    @PostMapping("update")
+    @DeleteMapping("{id}")
     public @ResponseBody
-    ResponseEntity updateApp(@RequestBody RoleData roleData) {
-        Role role = roleService.findByID(roleData.getId()).get();
-        role.setData(roleData, appService.findByID(roleData.getAppId()));
-        roleService.save(role);
-        return ResponseEntity.status(HttpStatus.OK).body(role.getId());
+    ResponseEntity deleteApp(@PathVariable Integer id) {
+        try {
+            roleService.deleteByID(id);
+        } catch (PersistenceException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
     }
-    @PostMapping("add")
+    @PutMapping("{id}")
     public @ResponseBody
-    ResponseEntity putApp(@RequestBody RoleData roleData) {
-        App app = appService.findByID(roleData.getAppId());
-        Role role = new Role(roleData, app);
-        roleService.save(role);
-        return ResponseEntity.status(HttpStatus.OK).body(role.getId());
-    }
-    @GetMapping("user")
-    public @ResponseBody
-    ResponseEntity getRolesOfUser(@RequestParam Integer id) {
-        Optional<User> user = userService.findByID(id);
-        if (user.isPresent()) {
-            List<Role> roles = roleService.findByUser(user.get());
-            if (roles != null && !roles.isEmpty()) {
-                List<RoleData> rolesData = roles.stream().map(RoleData::new).collect(Collectors.toList());
-                return ResponseEntity.status(HttpStatus.OK).body(rolesData);
+    ResponseEntity updateApp(@PathVariable Integer id, @RequestBody RoleData roleData) {
+        Optional<Role> role = roleService.findByID(roleData.getId());
+        if(role.isPresent()) {
+            Optional<App> app = appService.findByID(roleData.getAppId());
+            if (app.isPresent()) {
+                role.get().setData(roleData, app.get());
+                try {
+                    Role updatedRole = roleService.save(role.get());
+                    return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(updatedRole)));
+                } catch (PersistenceException e) {
+                    log.error(e.getMessage());
+                    return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+                }
             }
-            else {
-                return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+            else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + roleData.getAppId()));
+        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + id));
+    }
+    @PostMapping
+    public @ResponseBody
+    ResponseEntity addRole(@RequestBody RoleData roleData) {
+        Optional<App> app = appService.findByID(roleData.getAppId());
+        if(app.isPresent()) {
+            Role role = new Role(roleData, app.get());
+            try {
+                Role newRole = roleService.save(role);
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(newRole)));
+            } catch (PersistenceException e) {
+                log.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
             }
         }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Server can't found user with id " + id);
-        }
+        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + roleData.getAppId()));
     }
 }

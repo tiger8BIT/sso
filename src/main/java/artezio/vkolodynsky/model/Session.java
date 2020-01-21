@@ -28,7 +28,6 @@ public class Session implements Serializable {
 
 	private String jwt;
 
-	//bi-directional many-to-one association to User
 	@ManyToOne
 	private User user;
 }

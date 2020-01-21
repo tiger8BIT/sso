@@ -88,15 +88,15 @@
 </createIndex>
 </changeSet>
 <changeSet author="tiger8bit (generated)" id="1574540210023-14">
-<addForeignKeyConstraint baseColumnNames="app_id" baseTableName="role" constraintName="role_ibfk_1" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="app"/>
+<addForeignKeyConstraint baseColumnNames="app_id" baseTableName="role" constraintName="role_ibfk_1" onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="app"/>
 </changeSet>
 <changeSet author="tiger8bit (generated)" id="1574540210023-15">
-<addForeignKeyConstraint baseColumnNames="user_id" baseTableName="role_table" constraintName="role_table_ibfk_1" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+<addForeignKeyConstraint baseColumnNames="user_id" baseTableName="role_table" constraintName="role_table_ibfk_1" onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
 </changeSet>
 <changeSet author="tiger8bit (generated)" id="1574540210023-16">
-<addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_table" constraintName="role_table_ibfk_2" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="role"/>
+<addForeignKeyConstraint baseColumnNames="role_id" baseTableName="role_table" constraintName="role_table_ibfk_2" onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="role"/>
 </changeSet>
 <changeSet author="tiger8bit (generated)" id="1574540210023-17">
-<addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
+<addForeignKeyConstraint baseColumnNames="user_id" baseTableName="session" constraintName="session_ibfk_1" onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="id" referencedTableName="user"/>
 </changeSet>
 </databaseChangeLog>

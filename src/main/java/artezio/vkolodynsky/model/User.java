@@ -2,7 +2,9 @@ package artezio.vkolodynsky.model;
 
 import artezio.vkolodynsky.model.data.UserData;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import javax.persistence.*;
@@ -26,13 +28,18 @@ public class User implements Serializable {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
 
+	@EqualsAndHashCode.Exclude
 	private String info;
 
 	private String login;
 
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	private String password;
 
 	@OneToMany(mappedBy="user")
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private List<Session> sessions;
 
 	@ManyToMany
@@ -40,6 +47,8 @@ public class User implements Serializable {
 			name = "role_table",
 			joinColumns = @JoinColumn(name = "user_id"),
 			inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private List<Role> userRoles = new ArrayList<>();
 
 	public User(UserData userData) {

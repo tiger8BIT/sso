@@ -2,7 +2,9 @@ package artezio.vkolodynsky.model;
 
 import artezio.vkolodynsky.model.data.RoleData;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import javax.persistence.*;
@@ -17,6 +19,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @NamedQuery(name="Role.findAll", query="SELECT r FROM Role r")
+@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"role_name" , "app_id"})})
 public class Role implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -24,17 +27,18 @@ public class Role implements Serializable {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
 
+    @EqualsAndHashCode.Exclude
 	private String description;
 
 	@Column(name="role_name")
 	private String roleName;
 
-	//bi-directional many-to-one association to App
 	@ManyToOne
 	private App app;
 
-	//bi-directional many-to-one association to RoleTable
 	@ManyToMany(mappedBy="userRoles")
+    @EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private List<User> users;
 
 	public Role (RoleData roleData, App app) {

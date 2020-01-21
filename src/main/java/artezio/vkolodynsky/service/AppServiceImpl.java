@@ -1,10 +1,12 @@
 package artezio.vkolodynsky.service;
 import artezio.vkolodynsky.model.App;
+import artezio.vkolodynsky.model.Session;
 import artezio.vkolodynsky.repository.AppRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppServiceImpl implements AppService {
@@ -27,17 +29,17 @@ public class AppServiceImpl implements AppService {
     }
 
     @Override
-    public App findByID(int id) {
-        return repository.findById(id).get();
+    public Optional<App> findByID(int id) {
+        return repository.findById(id);
     }
 
     @Override
-    public App getAppByUrl(String url) {
+    public Optional<App> getAppByUrl(String url) {
         return repository.getAppByUrl(url);
     }
 
     @Override
-    public App getAppByName(String name) {
+    public Optional<App> getAppByName(String name) {
         return repository.getAppByName(name);
     }
 }

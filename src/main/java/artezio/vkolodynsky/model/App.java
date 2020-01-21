@@ -2,10 +2,13 @@ package artezio.vkolodynsky.model;
 
 import artezio.vkolodynsky.model.data.AppData;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -23,10 +26,14 @@ public class App implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
+	@Column(name="name", unique = true)
 	private String name;
+	@Column(name="url", unique = true)
 	private String url;
 
 	@OneToMany(mappedBy="app")
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private List<Role> roles;
 
 	public App(AppData app) {

@@ -35,16 +35,16 @@ public class RolesController {
     public @ResponseBody
     ResponseEntity getAppsList() {
         List<RoleData>  roles = roleService.findAll().stream().map(RoleData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(roles));
+        return ServerResponse.success(roles);
     }
     @GetMapping("{id}")
     public @ResponseBody
     ResponseEntity getAppsList(@PathVariable Integer id) {
         Optional<Role> role = roleService.findByID(id);
         if (role.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(role.get())));
+            return ServerResponse.success(new RoleData(role.get()));
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + id));
+        else return ServerResponse.error("Role not found by id " + id);
     }
     @DeleteMapping("{id}")
     public @ResponseBody
@@ -53,9 +53,9 @@ public class RolesController {
             roleService.deleteByID(id);
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
+        return ServerResponse.success(null);
     }
     @PutMapping("{id}")
     public @ResponseBody
@@ -64,33 +64,33 @@ public class RolesController {
         if(role.isPresent()) {
             Optional<App> app = appService.findByID(roleData.getAppId());
             if (app.isPresent()) {
-                role.get().setData(roleData, app.get());
+                roleData.updateRole(role.get(), app.get());
                 try {
                     Role updatedRole = roleService.save(role.get());
-                    return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(updatedRole)));
+                    return ServerResponse.success(new RoleData(updatedRole));
                 } catch (PersistenceException e) {
                     log.error(e.getMessage());
-                    return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+                    return ServerResponse.error("Server Error");
                 }
             }
-            else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + roleData.getAppId()));
+            else return ServerResponse.error("App not found by id " + roleData.getAppId());
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + id));
+        else return ServerResponse.error("Role not found by id " + id);
     }
     @PostMapping
     public @ResponseBody
     ResponseEntity addRole(@RequestBody RoleData roleData) {
         Optional<App> app = appService.findByID(roleData.getAppId());
         if(app.isPresent()) {
-            Role role = new Role(roleData, app.get());
+            Role role = roleData.getRole(app.get());
             try {
                 Role newRole = roleService.save(role);
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new RoleData(newRole)));
+                return ServerResponse.success(new RoleData(newRole));
             } catch (PersistenceException e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+                return ServerResponse.error("Server Error");
             }
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + roleData.getAppId()));
+        else return ServerResponse.error("App not found by id " + roleData.getAppId());
     }
 }

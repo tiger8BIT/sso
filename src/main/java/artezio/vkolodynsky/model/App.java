@@ -1,10 +1,7 @@
 package artezio.vkolodynsky.model;
 
 import artezio.vkolodynsky.model.data.AppData;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import javax.persistence.*;
@@ -35,9 +32,4 @@ public class App implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private List<Role> roles;
-
-	public App(AppData app) {
-	    name = app.getName();
-	    url = app.getUrl();
-    }
 }

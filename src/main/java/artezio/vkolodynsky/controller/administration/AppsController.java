@@ -27,7 +27,7 @@ public class AppsController {
     public @ResponseBody
     ResponseEntity getAppsList() {
         List<AppData> apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(apps));
+        return ServerResponse.success(apps);
     }
     @GetMapping("{id}")
     public @ResponseBody
@@ -35,9 +35,9 @@ public class AppsController {
         Optional<App> app = appService.findByID(id);
         if (app.isPresent()) {
             AppData appData = new AppData(app.get());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(appData));
+            return ServerResponse.success(appData);
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + id));
+        else return ServerResponse.error("App not found by id " + id);
     }
     @DeleteMapping("{id}")
     public @ResponseBody
@@ -46,9 +46,9 @@ public class AppsController {
             appService.deleteByID(id);
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
+        return ServerResponse.success(null);
     }
     @PutMapping("{id}")
     public @ResponseBody
@@ -59,25 +59,25 @@ public class AppsController {
                 app.get().setUrl(appData.getUrl());
                 app.get().setName(appData.getName());
                 App updatedApp = appService.save(app.get());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new AppData(updatedApp)));
+                return ServerResponse.success(new AppData(updatedApp));
             } catch (PersistenceException e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+                return ServerResponse.error("Server Error");
             }
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("App not found by id " + id));
+        else return ServerResponse.error("App not found by id " + id);
 
     }
     @PostMapping
     public @ResponseBody
     ResponseEntity putApp(@RequestBody AppData appData) {
-        App app = new App(appData);
+        App app = appData.getApp();
         try {
             App newApp = appService.save(app);
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new AppData(newApp)));
+            return ServerResponse.success(new AppData(newApp));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
     }
 }

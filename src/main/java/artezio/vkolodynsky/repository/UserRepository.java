@@ -5,10 +5,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
-    User getByLogin(String login);
-    User getByLoginAndPassword(String login, String password);
+    Optional<User> findByLogin(String login);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByLoginAndPassword(String login, String password);
     List<User> findByUserRoles(List<Role> roles);
 }

@@ -1,10 +1,14 @@
 package artezio.vkolodynsky.service;
 import artezio.vkolodynsky.model.Role;
 import artezio.vkolodynsky.model.User;
+import artezio.vkolodynsky.model.data.UserData;
 import artezio.vkolodynsky.repository.UserRepository;
+import artezio.vkolodynsky.validation.EmailExistsException;
+import artezio.vkolodynsky.validation.LoginExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.NonTransientDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +23,9 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> findAll() {
@@ -41,13 +48,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getByLogin(String login) {
-        return repository.getByLogin(login);
+    public Optional<User> findByLogin(String login) {
+        return repository.findByLogin(login);
     }
 
     @Override
-    public User getByLoginAndPassword(String login, String password) {
-        return repository.getByLoginAndPassword(login,password);
+    public Optional<User> findByLoginAndPassword(String login, String password) {
+        return repository.findByLoginAndPassword(login,password);
     }
 
     @Override
@@ -106,5 +113,32 @@ public class UserServiceImpl implements UserService {
         else throw new NonTransientDataAccessException("User not found by id " + userId){};
     }
 
+    @Transactional
+    @Override
+    public User registerNewUserAccount(UserData accountDto)
+            throws EmailExistsException, LoginExistsException {
+        if (emailExist(accountDto.getEmail())) {
+            throw new EmailExistsException(
+                    "There is an account with that email adress: "
+                            +  accountDto.getEmail());
+        }
+        if (loginExist(accountDto.getLogin())) {
+            throw new LoginExistsException(
+                    "There is an account with that login: "
+                            +  accountDto.getLogin());
+        }
+        User newUser = accountDto.getUser();
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        return repository.save(newUser);
+    }
 
+    private boolean emailExist(String email) {
+        Optional<User> user = repository.findByEmail(email);
+        return user.isPresent();
+    }
+
+    private boolean loginExist(String login) {
+        Optional<User> user = repository.findByLogin(login);
+        return user.isPresent();
+    }
 }

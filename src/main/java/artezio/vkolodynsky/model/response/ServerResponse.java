@@ -2,6 +2,8 @@ package artezio.vkolodynsky.model.response;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 
 @Data
@@ -10,12 +12,16 @@ public final class ServerResponse {
     @Nullable private String error;
     @Nullable private Object data;
 
-    public static ServerResponse success(Object data){
-        return new ServerResponse(true, null, data);
+    public static ResponseEntity success(Object data){
+        return responseWrapper(new ServerResponse(true, null, data));
     }
 
-    public static ServerResponse error(String error){
-        return new ServerResponse(false, error, null);
+    public static ResponseEntity error(String error){
+        return responseWrapper(new ServerResponse(false, error, null));
+    }
+
+    private static ResponseEntity responseWrapper(ServerResponse serverResponse) {
+        return ResponseEntity.status(HttpStatus.OK).body(serverResponse);
     }
 
     private ServerResponse(@NonNull boolean success, @Nullable String error, @Nullable Object data) {

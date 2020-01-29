@@ -16,4 +16,13 @@ public class AppData {
         name = app.getName();
         url = app.getUrl();
     }
+    public App getApp(){
+        App app = new App();
+        return updateApp(app);
+    }
+    public App updateApp(App app){
+        app.setName(name);
+        app.setUrl(url);
+        return app;
+    }
 }

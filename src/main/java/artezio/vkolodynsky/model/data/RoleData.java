@@ -20,4 +20,14 @@ public class RoleData {
         roleName = role.getRoleName();
         appId = role.getApp().getId();
     }
+    public Role getRole(App app) {
+        Role role = new Role();
+        return updateRole(role, app);
+    }
+    public Role updateRole(Role role, App app){
+        role.setRoleName(roleName);
+        role.setApp(app);
+        role.setDescription(description);
+        return role;
+    }
 }

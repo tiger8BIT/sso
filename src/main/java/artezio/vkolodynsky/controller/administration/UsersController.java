@@ -32,7 +32,7 @@ public class UsersController {
     public @ResponseBody
     ResponseEntity getUsersList() {
         List<UserData> users = userService.findAll().stream().map(UserData::new).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(users));
+        return ServerResponse.success(users);
     }
     @GetMapping("{id}")
     public @ResponseBody
@@ -40,9 +40,9 @@ public class UsersController {
         Optional<User> user = userService.findByID(id);
         if(user.isPresent()) {
             UserData userData = new UserData(user.get());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(userData));
+            return ServerResponse.success(userData);
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + id));
+        else return ServerResponse.error("User not found by id " + id);
     }
     @DeleteMapping("{id}")
     public @ResponseBody
@@ -51,9 +51,9 @@ public class UsersController {
             userService.deleteByID(id);
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(null));
+        return ServerResponse.success(null);
     }
     @PutMapping("{id}")
     public @ResponseBody
@@ -61,26 +61,26 @@ public class UsersController {
         Optional<User> user = userService.findByID(id);
         if (user.isPresent()){
             try {
-                user.get().setData(userData);
+                userData.updateUser(user.get());
                 User updatedUser = userService.save(user.get());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+                return ServerResponse.success(new UserData(updatedUser));
             } catch (PersistenceException e) {
                 log.error(e.getMessage());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+                return ServerResponse.error("Server Error");
             }
         }
-        else return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + id));
+        else return ServerResponse.error("User not found by id " + id);
     }
     @PostMapping
     public @ResponseBody
     ResponseEntity addUser(@RequestBody UserData userData) {
-        User user = new User(userData);
+        User user = userData.getUser();
         try {
             User newUser = userService.save(user);
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(newUser)));
+            return ServerResponse.success(new UserData(newUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
     }
     @GetMapping("{id}/roles")
@@ -91,43 +91,43 @@ public class UsersController {
             List<Role> roles = roleService.findByUser(user.get());
             if (roles != null && !roles.isEmpty()) {
                 List<RoleData> rolesData = roles.stream().map(RoleData::new).collect(Collectors.toList());
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(rolesData));
+                return ServerResponse.success(rolesData);
             }
             else {
-                return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(Collections.EMPTY_LIST));
+                return ServerResponse.success(Collections.EMPTY_LIST);
             }
         }
         else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ServerResponse.error("User not found by id " + id));
+            return ServerResponse.error("User not found by id " + id);
         }
     }
     @PostMapping("{userId}/roles/{roleId}")
     public @ResponseBody
     ResponseEntity userRolesAdd(@PathVariable Integer userId, @PathVariable Integer roleId) {
         Optional<Role> role = roleService.findByID(roleId);
-        if (!userService.existsById(userId)) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + userId));
-        if (role.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + roleId));
+        if (!userService.existsById(userId)) return ServerResponse.error("User not found by id " + userId);
+        if (role.isEmpty()) return ServerResponse.error("Role not found by id " + roleId);
         try {
             User updatedUser = userService.addRole(userId, role.get());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+            return ServerResponse.success(new UserData(updatedUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
     }
     @DeleteMapping("{userId}/roles/{roleId}")
     public @ResponseBody
     ResponseEntity userRolesDelete(@PathVariable Integer userId, @PathVariable Integer roleId) {
         Optional<Role> role = roleService.findByID(roleId);
-        if (!userService.existsById(userId)) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User not found by id " + userId));
-        if (role.isEmpty()) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Role not found by id " + roleId));
-        if(!userService.containsRole(userId, role.get())) return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("User haven't role with id " + roleId));
+        if (!userService.existsById(userId)) return ServerResponse.error("User not found by id " + userId);
+        if (role.isEmpty()) return ServerResponse.error("Role not found by id " + roleId);
+        if(!userService.containsRole(userId, role.get())) return ServerResponse.error("User haven't role with id " + roleId);
         try {
             User updatedUser = userService.deleteRole(userId, role.get());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.success(new UserData(updatedUser)));
+            return ServerResponse.success(new UserData(updatedUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(ServerResponse.error("Server Error"));
+            return ServerResponse.error("Server Error");
         }
     }
 }

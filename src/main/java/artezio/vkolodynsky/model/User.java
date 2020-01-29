@@ -31,11 +31,15 @@ public class User implements Serializable {
 	@EqualsAndHashCode.Exclude
 	private String info;
 
+	@Column(name="login", unique = true)
 	private String login;
 
 	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	private String password;
+
+	@Column(name="email", unique = true)
+	private String email;
 
 	@OneToMany(mappedBy="user")
 	@EqualsAndHashCode.Exclude
@@ -50,19 +54,4 @@ public class User implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private List<Role> userRoles = new ArrayList<>();
-
-	public User(UserData userData) {
-		info = userData.getInfo();
-		login = userData.getLogin();
-		if(userData.getPassword() != null) {
-			password = userData.getPassword();
-		}
-	}
-	public void setData(UserData userData) {
-		info = userData.getInfo();
-		login = userData.getLogin();
-		if(userData.getPassword() != null) {
-			password = userData.getPassword();
-		}
-	}
 }

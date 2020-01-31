@@ -23,4 +23,5 @@ public interface UserService {
     Boolean containsRole(int userId, Role role) throws NonTransientDataAccessException, NullPointerException;
     User registerNewUserAccount(UserData accountDto)
             throws EmailExistsException, LoginExistsException;
+    boolean verify(String token, String appUrl, String role) throws Exception;
 }

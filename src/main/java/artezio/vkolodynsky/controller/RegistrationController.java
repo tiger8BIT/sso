@@ -1,5 +1,7 @@
 package artezio.vkolodynsky.controller;
 
+import artezio.vkolodynsky.auth.CookieUtil;
+import artezio.vkolodynsky.auth.JwtUtil;
 import artezio.vkolodynsky.model.User;
 import artezio.vkolodynsky.model.data.UserData;
 import artezio.vkolodynsky.model.response.ServerResponse;
@@ -12,16 +14,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.PersistenceException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Slf4j
 @RestController
 @RequestMapping
-public class SsoUserController {
+public class RegistrationController {
     @Autowired
     private UserService userService;
     @PostMapping("registration")
     public @ResponseBody
-    ResponseEntity addUser(@RequestBody UserData userData) {
+    ResponseEntity registration(@RequestBody UserData userData) {
         try {
             User newUser = userService.registerNewUserAccount(userData);
             return ServerResponse.success(null);

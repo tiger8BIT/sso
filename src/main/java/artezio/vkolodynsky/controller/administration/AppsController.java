@@ -26,7 +26,7 @@ public class AppsController {
     @GetMapping
     public @ResponseBody
     ResponseEntity getAppsList() {
-        List<AppData> apps = appService.findAll().stream().map(AppData::new).collect(Collectors.toList());
+        List<AppData> apps = appService.findAll().stream().map(AppData::from).collect(Collectors.toList());
         return ServerResponse.success(apps);
     }
     @GetMapping("{id}")
@@ -34,7 +34,7 @@ public class AppsController {
     ResponseEntity getApp(@PathVariable Integer id) {
         Optional<App> app = appService.findByID(id);
         if (app.isPresent()) {
-            AppData appData = new AppData(app.get());
+            AppData appData = AppData.from(app.get());
             return ServerResponse.success(appData);
         }
         else return ServerResponse.error("App not found by id " + id);
@@ -59,7 +59,7 @@ public class AppsController {
                 app.get().setUrl(appData.getUrl());
                 app.get().setName(appData.getName());
                 App updatedApp = appService.save(app.get());
-                return ServerResponse.success(new AppData(updatedApp));
+                return ServerResponse.success(AppData.from(updatedApp));
             } catch (PersistenceException e) {
                 log.error(e.getMessage());
                 return ServerResponse.error("Server Error");
@@ -71,10 +71,10 @@ public class AppsController {
     @PostMapping
     public @ResponseBody
     ResponseEntity putApp(@RequestBody AppData appData) {
-        App app = appData.getApp();
+        App app = App.from(appData);
         try {
             App newApp = appService.save(app);
-            return ServerResponse.success(new AppData(newApp));
+            return ServerResponse.success(AppData.from(newApp));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
             return ServerResponse.error("Server Error");

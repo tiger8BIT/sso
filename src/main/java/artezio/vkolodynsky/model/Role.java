@@ -18,7 +18,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@NamedQuery(name="Role.findAll", query="SELECT r FROM Role r")
 @Table(uniqueConstraints={@UniqueConstraint(columnNames = {"role_name" , "app_id"})})
 public class Role implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -40,4 +39,15 @@ public class Role implements Serializable {
     @EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private List<User> users;
+
+	public static Role from(RoleData data){
+		Role role = new Role();
+		role.setData(data);
+		return role;
+	}
+	public void setData(RoleData data){
+		id = data.getId();
+		description = data.getDescription();
+		roleName = data.getRoleName();
+	}
 }

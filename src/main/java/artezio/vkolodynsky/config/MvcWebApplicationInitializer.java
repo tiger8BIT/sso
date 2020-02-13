@@ -6,7 +6,7 @@ public class MvcWebApplicationInitializer extends AbstractAnnotationConfigDispat
 
    @Override
    protected Class<?>[] getRootConfigClasses() {
-      return null;
+      return new Class[] {WebConfig.class, LiquibaseConfig.class, PersistenceConfig.class, SpringFoxConfig.class};
    }
 
    @Override

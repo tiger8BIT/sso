@@ -7,22 +7,16 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class AppData {
     private Integer id;
     private String name;
     private String url;
-    public AppData(App app){
-        id = app.getId();
-        name = app.getName();
-        url = app.getUrl();
-    }
-    public App getApp(){
-        App app = new App();
-        return updateApp(app);
-    }
-    public App updateApp(App app){
-        app.setName(name);
-        app.setUrl(url);
-        return app;
+    public static AppData from(App app){
+        AppData appData = new AppData();
+        appData.id = app.getId();
+        appData.name = app.getName();
+        appData.url = app.getUrl();
+        return appData;
     }
 }

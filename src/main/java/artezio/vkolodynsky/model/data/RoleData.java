@@ -2,6 +2,7 @@ package artezio.vkolodynsky.model.data;
 
 import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.Role;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,25 +10,18 @@ import javax.persistence.Column;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RoleData {
     private Integer id;
     private String description;
     private String roleName;
     private Integer appId;
-    public RoleData(Role role) {
-        id = role.getId();
-        description = role.getDescription();
-        roleName = role.getRoleName();
-        appId = role.getApp().getId();
-    }
-    public Role getRole(App app) {
-        Role role = new Role();
-        return updateRole(role, app);
-    }
-    public Role updateRole(Role role, App app){
-        role.setRoleName(roleName);
-        role.setApp(app);
-        role.setDescription(description);
-        return role;
+    public static RoleData from(Role role) {
+        RoleData roleData = new RoleData();
+        roleData.id = role.getId();
+        roleData.description = role.getDescription();
+        roleData.roleName = role.getRoleName();
+        roleData.appId = role.getApp().getId();
+        return roleData;
     }
 }

@@ -2,9 +2,12 @@ package artezio.vkolodynsky.service;
 import artezio.vkolodynsky.model.App;
 import artezio.vkolodynsky.model.Role;
 import artezio.vkolodynsky.model.User;
+import artezio.vkolodynsky.model.data.RoleData;
+import artezio.vkolodynsky.repository.AppRepository;
 import artezio.vkolodynsky.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +16,8 @@ import java.util.Optional;
 public class RoleServiceImpl implements RoleService {
     @Autowired
     private RoleRepository repository;
+    @Autowired
+    private AppRepository appRepository;
 
     @Override
     public List<Role> findAll() {
@@ -22,6 +27,15 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role save(Role value) {
         return repository.save(value);
+    }
+
+    @Override
+    @Transactional
+    public Role save(RoleData roleData) {
+        App app = appRepository.findById(roleData.getAppId()).orElseThrow();
+        Role role = Role.from(roleData);
+        role.setApp(app);
+        return repository.save(role);
     }
 
     @Override

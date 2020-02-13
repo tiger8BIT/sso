@@ -20,7 +20,6 @@ import java.util.Objects;
 @Entity
 @Data
 @NoArgsConstructor
-@NamedQuery(name="User.findAll", query="SELECT u FROM User u")
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -34,8 +33,8 @@ public class User implements Serializable {
 	@Column(name="login", unique = true)
 	private String login;
 
-	@ToString.Exclude
-	@EqualsAndHashCode.Exclude
+	//@ToString.Exclude
+	//@EqualsAndHashCode.Exclude
 	private String password;
 
 	@Column(name="email", unique = true)
@@ -54,4 +53,16 @@ public class User implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private List<Role> userRoles = new ArrayList<>();
+
+	public static User from(UserData data){
+		User user = new User();
+		user.setData(data);
+		return user;
+	}
+	public void setData(UserData data){
+		login = data.getLogin();
+		info = data.getInfo();
+		email = data.getEmail();
+		password = data.getPassword();
+	}
 }

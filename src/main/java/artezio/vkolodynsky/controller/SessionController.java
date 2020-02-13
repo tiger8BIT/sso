@@ -2,8 +2,11 @@ package artezio.vkolodynsky.controller;
 
 import artezio.vkolodynsky.auth.CookieUtil;
 import artezio.vkolodynsky.auth.JwtUtil;
+import artezio.vkolodynsky.auth.SessionUtil;
+import artezio.vkolodynsky.auth.TokenData;
 import artezio.vkolodynsky.model.Session;
 import artezio.vkolodynsky.model.User;
+import artezio.vkolodynsky.model.data.SessionData;
 import artezio.vkolodynsky.model.data.UserData;
 import artezio.vkolodynsky.model.request.CheckTokenRequest;
 import artezio.vkolodynsky.model.response.ServerResponse;
@@ -11,12 +14,15 @@ import artezio.vkolodynsky.security.SecurityService;
 import artezio.vkolodynsky.service.SessionService;
 import artezio.vkolodynsky.service.UserService;
 import eu.bitwalker.useragentutils.UserAgent;
+import io.jsonwebtoken.Claims;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +31,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,17 +41,15 @@ import java.util.Optional;
 @RequestMapping
 @PropertySource({"classpath:sso.properties"})
 public class SessionController {
-    @Autowired
-    private Environment env;
-    private final String jwtTokenCookieName = env.getProperty("sso.jwt.cookie.name");
-    private final String secretKey = env.getProperty("sso.jwt.key");
-    private final int expirationDays = Integer.parseInt(Objects.requireNonNull(env.getProperty("sso.jwt.expiration.days")));
+    @Value("${sso.jwt.cookie.name}")
+    private String jwtTokenCookieName;
+    @Value("${sso.jwt.key}")
+    private String secretKey;
+    @Value("${sso.jwt.expiration.days}")
+    private int expirationDays;
+
     @Autowired
     private UserService userService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SessionService sessionService;
 
 
     @GetMapping("token/name")
@@ -60,29 +66,71 @@ public class SessionController {
         return ServerResponse.success(userAgent);
     }
 
-    @PostMapping("check")
+    @GetMapping("userl")
+    public @ResponseBody
+    ResponseEntity check2(HttpServletRequest httpServletRequest) {
+        return ServerResponse.success(httpServletRequest.getLocale());
+    }
+
+    @GetMapping("useri")
+    public @ResponseBody
+    ResponseEntity check3(HttpServletRequest httpServletRequest) {
+        String ipAddress = httpServletRequest.getHeader("X-FORWARDED-FOR");
+        return ServerResponse.success(httpServletRequest.getRemoteAddr());
+    }
+
+   /* @PostMapping("check")
     public @ResponseBody
     ResponseEntity check(@RequestBody CheckTokenRequest request, HttpServletRequest httpServletRequest) throws Exception {
         httpServletRequest.getHeader("User-Agent");
         return ServerResponse.success(userService.verify(request.token, request.appUrl, request.roleName));
+    }*/
+
+    @PostMapping("verify")
+    public @ResponseBody
+    ResponseEntity verify(@RequestBody CheckTokenRequest checkTokenRequest) throws Exception {
+        userService.verifyToken(checkTokenRequest.token, checkTokenRequest.userDeviceInfo);
+        return ServerResponse.success("");
     }
 
+    @PostMapping("singin")
+    public String login(@RequestBody UserData userData, HttpServletRequest request, HttpServletResponse response) {
+        String token = userService.createToken(userData, request).orElseThrow();
+        HostAndPort hostAndPort = getHostAndPortFrom(request).orElseThrow();
+        CookieUtil.create(response, jwtTokenCookieName, token, false, expirationDays, hostAndPort.host);
+        return "redirect://" + hostAndPort;
+    }
 
-    @PostMapping
-    public @ResponseBody
-    ResponseEntity login(@RequestBody UserData userData, HttpServletRequest request) throws Exception {
-        User user = userService.findByID(userData.getId()).get();
-        String userAgentString = request.getHeader("User-Agent");
-        UserAgent userAgent = UserAgent.parseUserAgentString(userAgentString);
-        Optional<Session> optionalSession = sessionService.findByID(userAgent.getId());
-        Session session = optionalSession.isEmpty() ? new Session() : optionalSession.get();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expirationData = now.plusDays(expirationDays);
+    private boolean iSTokenExists(HttpServletRequest request){
+        return CookieUtil.getValue(request, jwtTokenCookieName).isPresent();
+    }
 
-        String token = JwtUtil.createJWT(user.getId().toString(), user.getLogin(), user.getPassword(), secretKey, expirationDays);
-        session.setCreateTime(Timestamp.valueOf(now));
-        session.setId(userAgent.getId());
-        session.setUserAgent(userAgentString);
-        return ServerResponse.success(token);
+    private static class HostAndPort{
+        String host;
+        Optional<Integer> port;
+        @Override
+        public String toString() {
+            return host + (port.map(integer -> (':' + integer.toString())).orElse(""));
+        }
+    }
+    private Optional<HostAndPort> getHostAndPortFrom(HttpServletRequest request){
+        HostAndPort hostAndPort = new HostAndPort();
+        String header = request.getHeader("Host");
+        if (StringUtils.hasText(header)) {
+            String[] hosts = StringUtils.commaDelimitedListToStringArray(header);
+            String hostToUse = hosts[0];
+            if (hostToUse.contains(":")) {
+                String[] hostAndPortStrings = StringUtils.split(hostToUse, ":");
+                hostAndPort.host = hostAndPortStrings[0];
+                hostAndPort.port = Optional.of(Integer.valueOf(hostAndPortStrings[1]));
+                return Optional.of(hostAndPort);
+            }
+            else {
+                hostAndPort.host = header;
+                hostAndPort.port = Optional.empty();
+                return Optional.of(hostAndPort);
+            }
+        } else  return Optional.empty();
+
     }
 }

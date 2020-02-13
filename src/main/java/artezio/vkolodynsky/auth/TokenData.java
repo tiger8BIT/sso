@@ -5,49 +5,49 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @EqualsAndHashCode
 public final class TokenData {
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     @AllArgsConstructor
     private enum FieldNames {
         USER_ID("USER_ID"),
+        SESSION_ID("SESSION_ID"),
         USERNAME("USERNAME"),
-        EXPIRATION_DATE("EXPIRATION_DATE"),
-        PASSWORD("PASSWORD");
+        CREATE_TIME("createTime");
         @Getter
         private String name;
     }
-    @Getter private final String userId;
+    @Getter private final Integer userId;
+    @Getter private final Integer sessionId;
     @Getter private final String username;
-    @Getter private final String password;
-    private Date expirationDate;
+    @Getter private final LocalDateTime createTime;
     @EqualsAndHashCode.Exclude
     private Map<String, Object> map = new HashMap<>();
 
-    public TokenData(String userId, String username, String password, Date expirationDate) {
+    public TokenData(Integer userId, Integer sessionId, String username, LocalDateTime createTime) {
         this.userId = userId;
+        this.sessionId = sessionId;
         this.username = username;
-        this.expirationDate = new Date(expirationDate.getTime());
-        this.password = password;
+        this.createTime = createTime;
         map.put(FieldNames.USER_ID.name, userId);
         map.put(FieldNames.USERNAME.name, username);
-        map.put(FieldNames.EXPIRATION_DATE.name, this.expirationDate);
-        map.put(FieldNames.PASSWORD.name, password);
+        map.put(FieldNames.CREATE_TIME.name, createTime.format(formatter));
+        map.put(FieldNames.SESSION_ID.name, sessionId);
     }
 
     public TokenData(Map<String, Object> map) {
         this.map = new HashMap<>(map);
-        this.userId = (String) map.get(FieldNames.USER_ID.name);
+        this.userId = (Integer) map.get(FieldNames.USER_ID.name);
+        this.sessionId = (Integer) map.get(FieldNames.SESSION_ID.name);
         this.username = (String) map.get(FieldNames.USERNAME.name);
-        this.expirationDate = (Date) map.get(FieldNames.EXPIRATION_DATE.name);
-        this.password = (String) map.get(FieldNames.PASSWORD.name);
-    }
-
-    public Date getExpirationDate(){
-        return new Date(expirationDate.getTime());
+        this.createTime = LocalDateTime.parse((String)map.get(FieldNames.CREATE_TIME.name), formatter);
     }
 
     public Map<String, Object> getMap() {

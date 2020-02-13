@@ -16,7 +16,6 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-@NamedQuery(name="App.findAll", query="SELECT a FROM App a")
 public class App implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -32,4 +31,16 @@ public class App implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private List<Role> roles;
+
+	public static App from(AppData data){
+		App app = new App();
+		app.setData(data);
+		return app;
+	}
+
+	public void setData(AppData data) {
+		id = data.getId();
+		name = data.getName();
+		url = data.getUrl();
+	}
 }

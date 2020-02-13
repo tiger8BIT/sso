@@ -1,7 +1,8 @@
 package artezio.vkolodynsky.model.request;
 
+import artezio.vkolodynsky.auth.SessionUtil;
+
 public class CheckTokenRequest {
     public String token;
-    public String appUrl;
-    public String roleName;
+    public SessionUtil.UserDeviceInfo userDeviceInfo;
 }

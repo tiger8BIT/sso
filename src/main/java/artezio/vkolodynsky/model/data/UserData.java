@@ -4,6 +4,7 @@ import artezio.vkolodynsky.validation.PasswordMatches;
 import artezio.vkolodynsky.validation.ValidEmail;
 import artezio.vkolodynsky.validation.ValidLogin;
 import artezio.vkolodynsky.validation.ValidPassword;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,11 +14,11 @@ import javax.validation.constraints.Size;
 @PasswordMatches
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserData {
     private Integer id;
     private String info;
 
-    @NotNull
     @Size(min = 1)
     @ValidLogin
     private String login;
@@ -34,21 +35,14 @@ public class UserData {
     @Size(min = 1)
     private String email;
 
-    public UserData(User user) {
-        id = user.getId();
-        info = user.getInfo();
-        login = user.getLogin();
-        email = user.getEmail();
-    }
-    public User getUser() {
-        User user = new User();
-        return updateUser(user);
-    }
-    public User updateUser(User user){
-        user.setLogin(login);
-        user.setInfo(info);
-        user.setEmail(email);
-        user.setPassword(password);
-        return user;
+    public static UserData from(User user) {
+        UserData userData = new UserData();
+        userData.id = user.getId();
+        userData.info = user.getInfo();
+        userData.login = user.getLogin();
+        userData.email = user.getEmail();
+        userData.password = user.getPassword();
+        userData.matchingPassword = user.getPassword();
+        return userData;
     }
 }

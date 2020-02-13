@@ -1,12 +1,14 @@
 package artezio.vkolodynsky.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import artezio.vkolodynsky.model.data.SessionData;
+import lombok.*;
 
 import java.io.Serializable;
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -17,13 +19,13 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@NamedQuery(name="Session.findAll", query="SELECT s FROM Session s")
 public class Session implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
+
+	private String locale;
 
 	private String userAgent;
 
@@ -32,4 +34,21 @@ public class Session implements Serializable {
 
 	@ManyToOne
 	private User user;
+
+	@OneToMany(mappedBy="session")
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	private Set<RemoteAddress> remoteAddresses = new HashSet<>();
+
+	public static Session from(SessionData data){
+		Session session = new Session();
+		session.setData(data);
+		return session;
+	}
+	public void setData(SessionData data){
+		createTime = data.getCreateTime();
+		id = data.getId();
+		locale = data.getLocale();
+		userAgent = data.getUserAgent();
+	}
 }

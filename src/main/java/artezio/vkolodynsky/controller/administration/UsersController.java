@@ -31,7 +31,7 @@ public class UsersController {
     @GetMapping
     public @ResponseBody
     ResponseEntity getUsersList() {
-        List<UserData> users = userService.findAll().stream().map(UserData::new).collect(Collectors.toList());
+        List<UserData> users = userService.findAll().stream().map(UserData::from).collect(Collectors.toList());
         return ServerResponse.success(users);
     }
     @GetMapping("{id}")
@@ -39,7 +39,7 @@ public class UsersController {
     ResponseEntity getUser(@PathVariable Integer id) {
         Optional<User> user = userService.findByID(id);
         if(user.isPresent()) {
-            UserData userData = new UserData(user.get());
+            UserData userData = UserData.from(user.get());
             return ServerResponse.success(userData);
         }
         else return ServerResponse.error("User not found by id " + id);
@@ -61,9 +61,9 @@ public class UsersController {
         Optional<User> user = userService.findByID(id);
         if (user.isPresent()){
             try {
-                userData.updateUser(user.get());
+                user.get().setData(userData);
                 User updatedUser = userService.save(user.get());
-                return ServerResponse.success(new UserData(updatedUser));
+                return ServerResponse.success(UserData.from(updatedUser));
             } catch (PersistenceException e) {
                 log.error(e.getMessage());
                 return ServerResponse.error("Server Error");
@@ -74,10 +74,10 @@ public class UsersController {
     @PostMapping
     public @ResponseBody
     ResponseEntity addUser(@RequestBody UserData userData) {
-        User user = userData.getUser();
+        User user = User.from(userData);
         try {
             User newUser = userService.save(user);
-            return ServerResponse.success(new UserData(newUser));
+            return ServerResponse.success(UserData.from(newUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
             return ServerResponse.error("Server Error");
@@ -90,7 +90,7 @@ public class UsersController {
         if (user.isPresent()) {
             List<Role> roles = roleService.findByUser(user.get());
             if (roles != null && !roles.isEmpty()) {
-                List<RoleData> rolesData = roles.stream().map(RoleData::new).collect(Collectors.toList());
+                List<RoleData> rolesData = roles.stream().map(RoleData::from).collect(Collectors.toList());
                 return ServerResponse.success(rolesData);
             }
             else {
@@ -109,7 +109,7 @@ public class UsersController {
         if (role.isEmpty()) return ServerResponse.error("Role not found by id " + roleId);
         try {
             User updatedUser = userService.addRole(userId, role.get());
-            return ServerResponse.success(new UserData(updatedUser));
+            return ServerResponse.success(UserData.from(updatedUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
             return ServerResponse.error("Server Error");
@@ -124,7 +124,7 @@ public class UsersController {
         if(!userService.containsRole(userId, role.get())) return ServerResponse.error("User haven't role with id " + roleId);
         try {
             User updatedUser = userService.deleteRole(userId, role.get());
-            return ServerResponse.success(new UserData(updatedUser));
+            return ServerResponse.success(UserData.from(updatedUser));
         } catch (PersistenceException e) {
             log.error(e.getMessage());
             return ServerResponse.error("Server Error");
